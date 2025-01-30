@@ -1,0 +1,30 @@
+name: Build and Push Docker Image to Tencent Cloud
+
+on:
+  push:
+    branches: [ "master" ]  # 触发分支
+  pull_request:
+    branches: [ "master" ]
+
+jobs:
+  build-and-push:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Login to Tencent Cloud Registry
+        uses: docker/login-action@v2
+        with:
+          registry: hkccr.ccs.tencentyun.com  # 腾讯云镜像仓库地址
+          username: ${{ secrets.TENCENT_USER_ID }}
+          password: ${{ secrets.TENCENT_PWD }}
+
+      - name: Build and Push Docker Image
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          push: true
+          tags: |
+            hkccr.ccs.tencentyun.com/fsyume/sfc-fs:latest
+            hkccr.ccs.tencentyun.com/fsyume/sfc-fs:${{ github.sha }}
